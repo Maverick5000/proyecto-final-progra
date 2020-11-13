@@ -3,13 +3,14 @@ import { applyMiddleware, createStore } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import outfitData from "./components/data/outfitData";
 import userData from "./components/data/userData";
 
 let store;
 
 const InitialState = {
   users: [...userData],
-  outfits: [],
+  outfits: [...outfitData],
   currentOutfit: {},
   session: {},
 };
@@ -29,6 +30,12 @@ export const reducer = (state = InitialState, action) => {
       return {
         ...state,
         session: action.payload,
+      };
+
+    case actionTypes.SAVE_OUTFIT:
+      return {
+        ...state,
+        outfits: [...state.outfits, action.payload],
       };
 
     default:
@@ -58,10 +65,21 @@ const doLogin = (username, password) => {
   };
 };
 
+export const saveOutfit = (outfit) => {
+  return doOutfit(outfit);
+};
+
+const doOutfit = (outfit) => {
+  return {
+    type: actionTypes.SAVE_OUTFIT,
+    payload: { ...outfit },
+  };
+};
+
 const persistConfig = {
   key: "primary",
   storage,
-  whitelist: ["users"], // place to select which state you want to persist
+  whitelist: ["users", "session", "outfits"], // place to select which state you want to persist
 };
 
 const persistedReducer = persistReducer(persistConfig, reducer);

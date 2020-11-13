@@ -1,7 +1,7 @@
-import Dashboard from "../components/Dashboard";
+import AvatarGrid from "../components/AvatarGrid";
 
 const Index = () => {
-  return <Dashboard />;
+  return <AvatarGrid />;
 };
 
 export default Index;
