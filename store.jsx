@@ -11,7 +11,7 @@ let store;
 const InitialState = {
   users: [...userData],
   outfits: [...outfitData],
-  currentOutfit: {},
+  loadedOutfit: {},
   session: {},
 };
 
@@ -36,6 +36,12 @@ export const reducer = (state = InitialState, action) => {
       return {
         ...state,
         outfits: [...state.outfits, action.payload],
+      };
+
+    case actionTypes.LOAD_PREMADE:
+      return {
+        ...state,
+        loadedOutfit: action.payload,
       };
 
     default:
@@ -76,10 +82,21 @@ const doOutfit = (outfit) => {
   };
 };
 
+export const loadOutfit = (outfit) => {
+  return doLoad(outfit);
+};
+
+const doLoad = (outfit) => {
+  return {
+    type: actionTypes.LOAD_PREMADE,
+    payload: { ...outfit },
+  };
+};
+
 const persistConfig = {
   key: "primary",
   storage,
-  whitelist: ["users", "session", "outfits"], // place to select which state you want to persist
+  whitelist: ["users", "session", "outfits"],
 };
 
 const persistedReducer = persistReducer(persistConfig, reducer);

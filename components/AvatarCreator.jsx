@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import Router from "next/router";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import avatarData from "../components/data/avatarData";
-import { saveOutfit } from "../store";
+import { loadOutfit, saveOutfit } from "../store";
 
 const AvatarCreator = () => {
   const [currentAvatar, setCurrentAvatar] = useState(0);
@@ -9,94 +10,90 @@ const AvatarCreator = () => {
   const [currentPant, setCurrentPant] = useState(0);
   const [currentPet, setCurrentPet] = useState(0);
   const dispatch = useDispatch();
+  const session = useSelector((state) => state.session);
+  const premade = useSelector((state) => state.loadedOutfit);
 
-  const handleChange = (bool) => {
+  useEffect(() => {
+    if (!session.user) {
+      Router.push("/login");
+    }
+
+    if (premade.avatar != null) {
+      setCurrentAvatar(premade.avatar);
+      setCurrentHat(premade.hat);
+      setCurrentPant(premade.pants);
+      setCurrentPet(premade.pet);
+    }
+  }, []);
+
+  const handleChange = (bool, valueHandler, currentVal, resourceArray) => {
     if (bool) {
-      if (currentAvatar < avatarData.avatars.length - 1) {
-        setCurrentAvatar(currentAvatar + 1);
+      if (currentVal < resourceArray.length - 1) {
+        valueHandler(currentVal + 1);
+      } else {
+        valueHandler(0);
       }
     } else {
-      if (currentAvatar > 0) {
-        setCurrentAvatar(currentAvatar - 1);
+      if (currentVal > 0) {
+        valueHandler(currentVal - 1);
+      } else {
+        valueHandler(resourceArray.length);
       }
     }
   };
 
-  const handleChangeHat = (bool) => {
-    if (bool) {
-      if (currentHat < avatarData.hats.length - 1) {
-        setCurrentHat(currentHat + 1);
-      }
-    } else {
-      if (currentHat > 0) {
-        setCurrentHat(currentHat - 1);
-      }
-    }
-  };
-
-  const handleChangePant = (bool) => {
-    if (bool) {
-      if (currentPant < avatarData.pants.length - 1) {
-        setCurrentPant(currentPant + 1);
-      }
-    } else {
-      if (currentPant > 0) {
-        setCurrentPant(currentPant - 1);
-      }
-    }
-  };
-
-  const handleChangePet = (bool) => {
-    if (bool) {
-      if (currentPet < avatarData.pets.length - 1) {
-        setCurrentPet(currentPet + 1);
-      }
-    } else {
-      if (currentPet > 0) {
-        setCurrentPet(currentPet - 1);
-      }
-    }
-  };
+  if (!session.user) return <>Please Login</>;
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen w-screen bg-teal-700">
+    <div className="flex flex-col justify-center items-center h-screen w-screen bg-teal-700 text-2xl">
       <button
         style={{ top: "85%" }}
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full m-4 absolute"
-        onClick={() =>
+        onClick={() => {
           dispatch(
             saveOutfit({
               hat: currentHat,
               pants: currentPant,
               pet: currentPet,
               avatar: currentAvatar,
+              username: session.user.username,
             })
-          )
-        }>
-        SAVE
+          );
+          dispatch(loadOutfit({}));
+          Router.push("/");
+        }}>
+        Guardar
       </button>
       <div className="flex justify-evenly w-full">
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full m-4"
-          onClick={() => handleChangeHat(false)}>
-          Atras
+          onClick={() =>
+            handleChange(false, setCurrentHat, currentHat, avatarData.hats)
+          }>
+          &#9194;
         </button>
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full m-4"
-          onClick={() => handleChangeHat(true)}>
-          Adelante
+          onClick={() =>
+            handleChange(true, setCurrentHat, currentHat, avatarData.hats)
+          }>
+          &#9193;
         </button>
       </div>
       <div className="flex justify-evenly w-full absolute">
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full m-4"
-          onClick={() => handleChangePant(false)}>
-          Atras
+          onClick={() =>
+            handleChange(false, setCurrentPant, currentPant, avatarData.pants)
+          }>
+          &#9194;
         </button>
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full m-4"
-          onClick={() => handleChangePant(true)}>
-          Adelante
+          onClick={() =>
+            handleChange(true, setCurrentPant, currentPant, avatarData.pants)
+          }>
+          &#9193;
         </button>
       </div>
       <div>
@@ -125,28 +122,50 @@ const AvatarCreator = () => {
         />
       </div>
 
-      <div className="flex justify-evenly w-full">
+      <div className="flex justify-center w-full">
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full m-4"
-          onClick={() => handleChangePet(false)}>
-          Atras
+          onClick={() =>
+            handleChange(false, setCurrentPet, currentPet, avatarData.pets)
+          }>
+          &#9194;
         </button>
+        <span className="text-white text-4xl">Mascota</span>
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full m-4"
-          onClick={() => handleChangePet(true)}>
-          Adelante
+          onClick={() =>
+            handleChange(true, setCurrentPet, currentPet, avatarData.pets)
+          }>
+          &#9193;
         </button>
       </div>
-      <div className="flex justify-evenly w-full absolute top-0">
+      <div
+        style={{ top: "5%" }}
+        className="flex justify-center w-full h-auto absolute items-center">
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full m-4"
-          onClick={() => handleChange(false)}>
-          Atras
+          onClick={() =>
+            handleChange(
+              false,
+              setCurrentAvatar,
+              currentAvatar,
+              avatarData.avatars
+            )
+          }>
+          &#9194;
         </button>
+        <span className="text-white text-4xl">Color</span>
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full m-4"
-          onClick={() => handleChange(true)}>
-          Adelante
+          onClick={() =>
+            handleChange(
+              true,
+              setCurrentAvatar,
+              currentAvatar,
+              avatarData.avatars
+            )
+          }>
+          &#9193;
         </button>
       </div>
     </div>

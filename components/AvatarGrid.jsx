@@ -12,7 +12,7 @@ const AvatarGrid = () => {
   };
 
   return (
-    <div className="flex flex-wrap justify-center items-center bg-blue-800 w-full h-auto">
+    <div className="flex flex-wrap justify-center items-center bg-blue-800 w-full h-full">
       {mapOutfits(outfits)}
     </div>
   );
